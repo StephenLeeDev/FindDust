@@ -1,6 +1,7 @@
 package com.example.finddust.data
 
 import com.example.finddust.BuildConfig
+import com.example.finddust.data.models.airquality.MeasuredValue
 import com.example.finddust.data.models.monitoringstation.MonitoringStation
 import com.example.finddust.data.services.AirKoreaApiService
 import com.example.finddust.data.services.KakaoLocalApiService
@@ -32,6 +33,15 @@ object Repository {
             ?.monitoringStations
             ?.minByOrNull { it.tm ?: Double.MAX_VALUE }
     }
+
+    suspend fun getLatestAirQualityData(stationName: String): MeasuredValue? =
+        airKoreaApiService
+            .getRealTimeAirQualities(stationName)
+            .body()
+            ?.response
+            ?.body
+            ?.measuredValues
+            ?.firstOrNull()
 
     private val kakaoLocalApiService: KakaoLocalApiService by lazy {
         Retrofit.Builder()

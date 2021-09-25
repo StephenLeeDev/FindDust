@@ -80,7 +80,13 @@ class MainActivity : AppCompatActivity() {
                 ).addOnSuccessListener { location ->
                     scope.launch {
                         val monitoringStation = Repository.getNearbyMonitoringStation(location.latitude, location.longitude)
-                        binding.textView.text = monitoringStation?.stationName
+                        monitoringStation?.let { station ->
+                            station.stationName?.let { stationName ->
+                                val measuredValue = Repository.getLatestAirQualityData(stationName)
+
+                                binding.textView.text = measuredValue.toString()
+                            }
+                        }
                     }
                 }
         }
