@@ -3,9 +3,11 @@ package com.example.finddust
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.example.finddust.data.Repository
 import com.example.finddust.data.models.airquality.Grade
@@ -52,10 +54,21 @@ class MainActivity : AppCompatActivity() {
         val locationPermissionGranted =
             requestCode == REQUEST_ACCESS_LOCATION_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED
 
-        if (!locationPermissionGranted) {
-            finish()
+        val backgroundLocationPermissionGranted =
+            requestCode == REQUEST_BACKGROUND_ACCESS_LOCATION_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!backgroundLocationPermissionGranted) {
+                requestBackgroundLocationPermission()
+            } else {
+                fetchAirQualityData()
+            }
         } else {
-            fetchAirQualityData()
+            if (!locationPermissionGranted) {
+                finish()
+            } else {
+                fetchAirQualityData()
+            }
         }
     }
 
@@ -77,6 +90,15 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ),
             REQUEST_ACCESS_LOCATION_PERMISSION
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestBackgroundLocationPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+            REQUEST_BACKGROUND_ACCESS_LOCATION_PERMISSION
         )
     }
 
@@ -165,5 +187,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_ACCESS_LOCATION_PERMISSION = 100
+        private const val REQUEST_BACKGROUND_ACCESS_LOCATION_PERMISSION = 101
     }
 }
