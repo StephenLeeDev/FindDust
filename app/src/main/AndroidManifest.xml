@@ -33,6 +33,9 @@
                 android:resource="@xml/widget_simple_info"/>
         </receiver>
 
+        <service android:name=".appwidget.SimpleAirQualityWidgetProvider$UpdateWidgetService"
+            android:foregroundServiceType="location" />
+
     </application>
 
 </manifest>
